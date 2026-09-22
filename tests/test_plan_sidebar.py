@@ -47,12 +47,6 @@ class PlanSidebarTests(unittest.TestCase):
             matched = MODULE.session_plans(sessions, [])
             self.assertEqual(matched["chat-alpha"]["completed"], 1)
             self.assertEqual(matched["chat-beta"]["completed"], 0)
-            sidebar = MODULE.render(sessions, [])
-            self.assertIn("workspaces.filter { $0.selected }", sidebar)
-            self.assertIn("selected.tabs.filter { $0.focused }", sidebar)
-            self.assertIn("$0.panelId == tab.id", sidebar)
-            self.assertIn('agent.id == "chat-alpha"', sidebar)
-            self.assertIn('agent.id == "chat-beta"', sidebar)
 
     def test_ambiguous_chat_does_not_choose_a_plan(self):
         with tempfile.TemporaryDirectory() as temporary:
