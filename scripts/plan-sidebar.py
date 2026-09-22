@@ -343,7 +343,7 @@ def render(sessions_dir: Path, extra_roots: list[Path], resolver: ModelResolver 
             f"            Text({quoted(plan['name'])}).font(.subheadline).foregroundColor(.secondary)",
             f"            Text({quoted(plan['match'])}).font(.caption2).foregroundColor(.secondary)",
             f"            Text({quoted(count_text)}).font(.caption)",
-            f"            ProgressView(value: {plan['completed']}, total: {max(plan['total'], 1)})",
+            f"            ProgressView(\"\", value: {plan['completed']}, total: {max(plan['total'], 1)})",
         ])
         for phase in plan["phases"][:30]:
             icon = "checkmark.circle.fill" if phase["done"] else "circle"
