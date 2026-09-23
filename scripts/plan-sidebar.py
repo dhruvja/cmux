@@ -319,6 +319,8 @@ def render(sessions_dir: Path, extra_roots: list[Path], resolver: ModelResolver 
     def quoted(value: str) -> str:
         return json.dumps(value, ensure_ascii=False)
 
+    matching_agent = " || ".join(f"$0.id == {quoted(session_id)}" for session_id in plans)
+    matching_filter = f"$0.panelId == tab.id && ({matching_agent})" if matching_agent else "false"
     lines = [
         "// Generated from local agent chats and plan-state.yaml files. Do not edit.",
         "VStack(alignment: .leading, spacing: 8) {",
@@ -332,8 +334,10 @@ def render(sessions_dir: Path, extra_roots: list[Path], resolver: ModelResolver 
         "      if let agents = selected.agents {",
         "        if agents.filter { $0.panelId == tab.id }.isEmpty {",
         '          Text("No agent chat for this terminal").foregroundColor(.secondary)',
-        "        }",
-        "        ForEach(agents.filter { $0.panelId == tab.id }.prefix(1)) { agent in",
+        "        } else if agents.filter { " + matching_filter + " }.isEmpty {",
+        '          Text("No matching plan in this chat").foregroundColor(.secondary)',
+        "        } else {",
+        "          ForEach(agents.filter { " + matching_filter + " }.prefix(1)) { agent in",
     ]
     for index, (session_id, plan) in enumerate(plans.items()):
         lead = "if" if index == 0 else "else if"
@@ -376,6 +380,7 @@ def render(sessions_dir: Path, extra_roots: list[Path], resolver: ModelResolver 
     else:
         lines.append('          Text("No matching plan in this chat").foregroundColor(.secondary)')
     lines.extend([
+        "          }",
         "        }",
         "      } else {",
         '        Text("No agent chat for this terminal").foregroundColor(.secondary)',

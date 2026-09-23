@@ -10,6 +10,8 @@ completed phase. A phase counts as done only when `plan-state.yaml` says
 The generator reads cmux's local `*-hook-sessions.json` registries to find each
 agent session's transcript and working directory. It looks for referenced plan
 paths, phase filenames, or plan names in recent chat messages and tool calls.
+When one terminal contains sequential agent sessions, the sidebar uses the
+newest session on that terminal that has a plan match.
 It discovers plan files in `plans/` and `docs/plans/` under that directory or
 its ancestors. If references do not identify one plan, it asks `codex exec` to
 choose from the candidate plans. The model receives the last 12 extracted chat
