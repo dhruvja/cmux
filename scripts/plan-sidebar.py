@@ -338,28 +338,34 @@ def render(sessions_dir: Path, extra_roots: list[Path], resolver: ModelResolver 
     for index, (session_id, plan) in enumerate(plans.items()):
         lead = "if" if index == 0 else "else if"
         count_text = f"{plan['completed']} / {plan['total']} done"
+        active = next((phase for phase in plan["phases"] if not phase["done"]), None)
+        latest_done = next((phase for phase in reversed(plan["phases"]) if phase["done"]), None)
         lines.extend([
             f"          {lead} agent.id == {quoted(session_id)} {{",
-            f"            Text({quoted(plan['name'])}).font(.subheadline).foregroundColor(.secondary)",
-            f"            Text({quoted(plan['match'])}).font(.caption2).foregroundColor(.secondary)",
-            f"            Text({quoted(count_text)}).font(.caption)",
+            f"            Text({quoted(plan['name'])}).font(.subheadline)",
+            f"            Text({quoted(count_text)}).font(.caption).foregroundColor(.secondary)",
             f"            ProgressView(\"\", value: {plan['completed']}, total: {max(plan['total'], 1)})",
         ])
-        for phase in plan["phases"][:30]:
-            icon = "checkmark.circle.fill" if phase["done"] else "circle"
-            color = "#34C759" if phase["done"] else "#8E8E93"
+        if active:
             lines.extend([
+                '            Text("CURRENT").font(.caption2).foregroundColor(.secondary)',
                 "            HStack(spacing: 8) {",
-                f"              Image(systemName: {quoted(icon)}).foregroundColor({quoted(color)})",
-                "              VStack(alignment: .leading, spacing: 2) {",
-                f"                Text({quoted(phase['title'])}).font(.caption).lineLimit(2)",
-                f"                Text({quoted(phase['status'])}).font(.caption2).foregroundColor(.secondary)",
-                "              }",
+                '              Image(systemName: "circle.fill").foregroundColor("#0A84FF")',
+                f"              Text({quoted(active['title'])}).font(.caption).lineLimit(2)",
                 "              Spacer()",
                 "            }",
             ])
-        if len(plan["phases"]) > 30:
-            lines.append(f'            Text("{len(plan["phases"]) - 30} more phases").font(.caption2)')
+        elif plan["phases"]:
+            lines.append('            Text("All phases complete").font(.caption).foregroundColor("#34C759")')
+        if latest_done:
+            lines.extend([
+                '            Text("LAST COMPLETED").font(.caption2).foregroundColor(.secondary)',
+                "            HStack(spacing: 8) {",
+                '              Image(systemName: "checkmark.circle.fill").foregroundColor("#34C759")',
+                f"              Text({quoted(latest_done['title'])}).font(.caption).lineLimit(2)",
+                "              Spacer()",
+                "            }",
+            ])
         lines.append("          }")
     if plans:
         lines.extend([

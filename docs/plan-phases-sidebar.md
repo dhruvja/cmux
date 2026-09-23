@@ -3,8 +3,9 @@
 `scripts/plan-sidebar.py` generates a cmux custom sidebar from local Codex and
 Claude Code conversations. It follows the focused terminal, even when several
 terminals in one workspace are working on different plans. The sidebar shows
-the plan's completed count, progress bar, and phase statuses. A phase counts
-as done only when `plan-state.yaml` says `complete`.
+the plan's completed count, progress bar, current phase, and most recently
+completed phase. A phase counts as done only when `plan-state.yaml` says
+`complete`.
 
 The generator reads cmux's local `*-hook-sessions.json` registries to find each
 agent session's transcript and working directory. It looks for referenced plan
